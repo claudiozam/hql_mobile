@@ -2,6 +2,7 @@ package edu.palermo.hqlproject.views.activities;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import android.app.Activity;
@@ -12,9 +13,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
+import android.speech.tts.*;
+import android.speech.tts.TextToSpeech.OnInitListener;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,14 +38,16 @@ import edu.palermo.hqlproject.views.adapter.DiscussArrayAdapter;
 import edu.palermo.hqlproject.views.cells.OneComment;
 
 public class ConversationFragment extends Fragment implements
-		AsyncRestListener<Analize> {
+		AsyncRestListener<Analize>, OnInitListener {
 	private static final int REQUEST_CODE = 1234;
-
-	private edu.palermo.hqlproject.views.adapter.DiscussArrayAdapter adapter;
+	private static final int TTS_REQUEST_CODE = 1235;
+	private TextToSpeech mTts;
+    private edu.palermo.hqlproject.views.adapter.DiscussArrayAdapter adapter;
 	private ListView lv;
 	private Button hablar;
 	private EditText texto;
-
+	private boolean ttsReadyToUse = false;
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -80,6 +86,11 @@ public class ConversationFragment extends Fragment implements
 				R.layout.listitem_discuss);
 		lv.setAdapter(adapter);
 		setHasOptionsMenu(true);
+		
+	    Intent checkIntent = new Intent();
+	    checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+	    startActivityForResult(checkIntent, TTS_REQUEST_CODE);
+	        
 		return view;
 	}
 
@@ -106,7 +117,19 @@ public class ConversationFragment extends Fragment implements
 			});
 			AlertDialog alert = builder.create();
 			alert.show();
-		}
+		} else if (requestCode == TTS_REQUEST_CODE) {
+            if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS)
+            {
+                mTts = new TextToSpeech(this.getActivity(), this);
+            }
+            else
+            {
+                Intent installIntent = new Intent();
+                installIntent.setAction(
+                        TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                startActivity(installIntent);
+            }
+        }
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
@@ -177,11 +200,35 @@ public class ConversationFragment extends Fragment implements
 	public void restCallDidFinishSucessfuly(Analize result) {
 		ResponseData data = result.getResponseData();
 		adapter.add(new OneComment(true, data.getSimpleText()));
+		
+		if(result.getResponseType().equals("text")) {
+			mTts.speak(data.getSimpleText(),
+	                TextToSpeech.QUEUE_FLUSH,  // Drop all pending entries in the playback queue.
+	                null);
+		}
+		
 		texto.setText("");
 	}
 
 	public void restCallDidFinishWithErrors() {
 
+	}
+
+	public void onInit(int status) {
+		if (status == TextToSpeech.SUCCESS) {
+			int result = mTts.setLanguage(new Locale("es"));
+			if (result == TextToSpeech.LANG_MISSING_DATA
+					|| result == TextToSpeech.LANG_NOT_SUPPORTED) {
+				
+				Log.e("ConversationFragment", "Language is not available");
+			} else {
+				ttsReadyToUse = true;
+			}
+		} else {
+			// Initialization failed.
+			Log.e("ConversationFragment", "Could not initialize TextToSpeech");
+		}
+		
 	}
 
 }
