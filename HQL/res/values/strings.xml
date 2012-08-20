@@ -2,4 +2,9 @@
 <resources>
     <string name="app_name">Human Query Languaje</string>
 	<string name="hablar">Hablar</string>
+	<string name="preferences">Preferencias</string>
+	<string name="preference_url_prompt_title">Ingrese el server &#8230;</string>
+	<string name="preference_url_title">Server</string>
+	<string name="preference_url_key">url_key</string>
+	<string name="preference_url_default">http://192.168.0.104:8080/hqlcore/hqlmain/</string>
 </resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <EditTextPreference android:dialogTitle="@string/preference_url_prompt_title" android:positiveButtonText="@android:string/ok" android:key="@string/preference_url_key" android:persistent="true" android:defaultValue="@string/preference_url_default" android:title="@string/preference_url_title"/>
+    
+
+</PreferenceScreen>
