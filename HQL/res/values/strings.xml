@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">Human Query Languaje</string>
 	<string name="hablar">Hablar</string>
+	<string name="enviar">Enviar</string>
+	<string name="voice_recog">Quizo decir &#8230;</string>
 	<string name="preferences">Preferencias</string>
 	<string name="preference_url_prompt_title">Ingrese el server &#8230;</string>
 	<string name="preference_url_title">Server</string>

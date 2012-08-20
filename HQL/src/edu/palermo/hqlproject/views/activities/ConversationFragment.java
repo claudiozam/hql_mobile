@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +23,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import edu.palermo.hqlproject.R;
 import edu.palermo.hqlproject.server.AsyncRestRequest;
@@ -37,6 +40,7 @@ public class ConversationFragment extends Fragment implements
 	private edu.palermo.hqlproject.views.adapter.DiscussArrayAdapter adapter;
 	private ListView lv;
 	private Button hablar;
+	private EditText texto;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,9 +50,30 @@ public class ConversationFragment extends Fragment implements
 				false);
 		lv = (ListView) view.findViewById(R.id.listView1);
 		hablar = (Button) view.findViewById(R.id.hablar);
+		texto = (EditText)view.findViewById(R.id.texto);
+		texto.addTextChangedListener(new TextWatcher() {
+			
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if (count > 0){
+					hablar.setText(R.string.enviar);
+				}else{
+					hablar.setText(R.string.hablar);
+				}
+			}
+			
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			}
+			
+			public void afterTextChanged(Editable s) {
+			}
+		});
 		hablar.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				startVoiceRecognitionActivity();
+				if (hablar.getText().equals(getString(R.string.hablar))){
+					startVoiceRecognitionActivity();
+				}else{
+					sendTextToServer(texto.getText().toString());
+				}
 			}
 		});
 		adapter = new DiscussArrayAdapter(inflater.getContext(),
@@ -72,23 +97,28 @@ public class ConversationFragment extends Fragment implements
 			result.toArray(matches);
 			AlertDialog.Builder builder = new AlertDialog.Builder(
 					this.getActivity());
-			builder.setTitle("Make your selection");
+			builder.setTitle(R.string.voice_recog);
 			builder.setItems(matches, new DialogInterface.OnClickListener() {
-				@SuppressWarnings("unchecked")
 				public void onClick(DialogInterface dialog, int item) {
-					adapter.add(new OneComment(false, matches[item]));
-					SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-					String base_api_url = sharedPref.getString(getString(R.string.preference_url_key), getString(R.string.preference_url_default));
-					AsyncRestRequest<Analize> api = new AsyncRestRequest<Analize>(base_api_url + "/analize.html?text={text}&userAgent={userAgent}", Analize.class, ConversationFragment.this);
-					Map<String,String> param = new HashMap<String,String>();
-					param.put("text", matches[item]);
-					api.execute(param);
+//					sendTextToServer(matches[item]);
+					texto.setText(matches[item]);
 				}
 			});
 			AlertDialog alert = builder.create();
 			alert.show();
 		}
 		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void sendTextToServer(String string) {
+		adapter.add(new OneComment(false, string));
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		String base_api_url = sharedPref.getString(getString(R.string.preference_url_key), getString(R.string.preference_url_default));
+		AsyncRestRequest<Analize> api = new AsyncRestRequest<Analize>(base_api_url + "/analize.html?text={text}&userAgent={userAgent}", Analize.class, ConversationFragment.this);
+		Map<String,String> param = new HashMap<String,String>();
+		param.put("text", string);
+		api.execute(param);
 	}
 
 	@Override
@@ -147,6 +177,7 @@ public class ConversationFragment extends Fragment implements
 	public void restCallDidFinishSucessfuly(Analize result) {
 		ResponseData data = result.getResponseData();
 		adapter.add(new OneComment(true, data.getSimpleText()));
+		texto.setText("");
 	}
 
 	public void restCallDidFinishWithErrors() {
