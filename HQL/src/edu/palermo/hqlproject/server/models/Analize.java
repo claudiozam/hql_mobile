@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class Analize implements Serializable{
 // {"responseType":"text","responseData":{"simpleText":"El valor es de 120"},"id":12345678}
+// {"responseType":"link","responseData":{"simpleText":"El valor es de 120", "url":"http://www.google.com"},"id":12345678}
 
 	private static final long serialVersionUID = 3822722018121854984L;
 	private String responseType;

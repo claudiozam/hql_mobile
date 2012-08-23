@@ -4,4 +4,8 @@
           android:icon="@android:drawable/ic_menu_preferences"
           android:title="@string/preferences"
     />
+    <item android:id="@+id/clean"
+          android:icon="@android:drawable/ic_menu_close_clear_cancel"
+          android:title="@string/clear"
+    />
 </menu>

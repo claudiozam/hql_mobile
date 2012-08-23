@@ -7,13 +7,14 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
-import android.speech.tts.*;
+import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -26,6 +27,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -84,6 +86,8 @@ public class ConversationFragment extends Fragment implements
 		});
 		adapter = new DiscussArrayAdapter(inflater.getContext(),
 				R.layout.listitem_discuss);
+		lv.setStackFromBottom(true);
+		lv.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 		lv.setAdapter(adapter);
 		setHasOptionsMenu(true);
 		
@@ -153,38 +157,37 @@ public class ConversationFragment extends Fragment implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.settings:
+		case R.id.settings:{
 			Intent i = new Intent(getActivity(), PreferencesActivity.class);
 			startActivity(i);
 			return true;
+		}
+		case R.id.clean:{
+			adapter.clear();
+			return true;
+		}
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 
 	}
-
-	// private void addItems() {
-	// adapter.add(new OneComment(true, "Hello bubbles!"));
-	//
-	// for (int i = 0; i < 4; i++) {
-	// boolean left = getRandomInteger(0, 1) == 0 ? true : false;
-	// int word = getRandomInteger(1, 10);
-	// int start = getRandomInteger(1, 40);
-	// String words = ipsum.getWords(word, start);
-	//
-	// adapter.add(new OneComment(left, words));
-	// }
-	// }
-
-	// private static int getRandomInteger(int aStart, int aEnd) {
-	// if (aStart > aEnd) {
-	// throw new IllegalArgumentException("Start cannot exceed End.");
-	// }
-	// long range = (long) aEnd - (long) aStart + 1;
-	// long fraction = (long) (range * random.nextDouble());
-	// int randomNumber = (int) (fraction + aStart);
-	// return randomNumber;
-	// }
+	
+	@Override
+	public void onDestroy(){
+		if (mTts != null){
+			mTts.stop();
+			mTts.shutdown();
+		}
+		super.onDestroy();
+	}
+	
+	@Override
+	public void onResume(){
+		super.onResume();
+		InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
+			      Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(texto.getWindowToken(), 0);
+	}
 
 	/**
 	 * Fire an intent to start the voice recognition activity.
@@ -200,7 +203,6 @@ public class ConversationFragment extends Fragment implements
 	public void restCallDidFinishSucessfuly(Analize result) {
 		ResponseData data = result.getResponseData();
 		adapter.add(new OneComment(true, data.getSimpleText()));
-		
 		if(result.getResponseType().equals("text") && ttsReadyToUse) {
 			mTts.speak(data.getSimpleText(),
 	                TextToSpeech.QUEUE_FLUSH,  // Drop all pending entries in the playback queue.
