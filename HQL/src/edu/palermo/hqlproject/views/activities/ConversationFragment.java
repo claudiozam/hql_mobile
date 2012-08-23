@@ -201,7 +201,7 @@ public class ConversationFragment extends Fragment implements
 		ResponseData data = result.getResponseData();
 		adapter.add(new OneComment(true, data.getSimpleText()));
 		
-		if(result.getResponseType().equals("text")) {
+		if(result.getResponseType().equals("text") && ttsReadyToUse) {
 			mTts.speak(data.getSimpleText(),
 	                TextToSpeech.QUEUE_FLUSH,  // Drop all pending entries in the playback queue.
 	                null);
