@@ -140,6 +140,7 @@ public class ConversationFragment extends Fragment implements
 	@SuppressWarnings("unchecked")
 	protected void sendTextToServer(String string) {
 		adapter.add(new OneComment(false, string));
+		texto.setText("");
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		String base_api_url = sharedPref.getString(getString(R.string.preference_url_key), getString(R.string.preference_url_default));
 		AsyncRestRequest<Analize> api = new AsyncRestRequest<Analize>(base_api_url + "/analize.html?text={text}&userAgent={userAgent}", Analize.class, ConversationFragment.this);

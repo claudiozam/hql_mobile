@@ -19,25 +19,35 @@ import edu.palermo.hqlproject.views.cells.OneComment;
 public class DiscussArrayAdapter extends ArrayAdapter<OneComment> {
 
 	private TextView countryName;
-	private List<OneComment> countries = new ArrayList<OneComment>();
+	private List<OneComment> comments = new ArrayList<OneComment>();
 	private LinearLayout wrapper;
 
 	@Override
 	public void add(OneComment object) {
-		countries.add(object);
+		if (comments != null) {
+			comments.add(object);
+		}
 		super.add(object);
 	}
 
+	@Override
+	public void clear(){
+		if (comments != null) {
+			comments.clear();
+		}
+		super.clear();
+	}
+	
 	public DiscussArrayAdapter(Context context, int textViewResourceId) {
 		super(context, textViewResourceId);
 	}
 
 	public int getCount() {
-		return this.countries.size();
+		return this.comments.size();
 	}
 
 	public OneComment getItem(int index) {
-		return this.countries.get(index);
+		return this.comments.get(index);
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {

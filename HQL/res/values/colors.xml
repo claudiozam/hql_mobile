@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="button_shadow">#59000000</color>
+    
+    <color name="button_blue_border">#ff0087CD</color>
+    <color name="button_blue_start_gradient">#ff69C8FA</color>
+    <color name="button_blue_end_gradient">#ff0087CD</color>
+    <color name="button_blue_text">#ffffffff</color>
+    <color name="button_blue_text_shadow">#e0000000</color>
+    
+    <color name="button_blue_highlight_border">#ff19325A</color>
+    <color name="button_blue_highlight_start_gradient">#ff0087CD</color>
+    <color name="button_blue_highlight_end_gradient">#ff0087CD</color>
+
+    <color name="blue_text_normal">#ff0086CC</color>
+    <color name="blue_text_selected">#ffffffff</color>
+    
+    
+</resources>
