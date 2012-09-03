@@ -63,10 +63,10 @@ public class DiscussArrayAdapter extends ArrayAdapter<OneComment> {
 
 		countryName = (TextView) row.findViewById(R.id.comment);
 
-		countryName.setText(coment.comment);
+		countryName.setText(coment.getComment());
 
-		countryName.setBackgroundResource(coment.left ? R.drawable.bubble_yellow : R.drawable.bubble_green);
-		wrapper.setGravity(coment.left ? Gravity.LEFT : Gravity.RIGHT);
+		countryName.setBackgroundResource(coment.isLeft() ? R.drawable.bubble_yellow : R.drawable.bubble_green);
+		wrapper.setGravity(coment.isLeft() ? Gravity.LEFT : Gravity.RIGHT);
 
 		return row;
 	}

@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
@@ -28,6 +29,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -35,12 +38,12 @@ import edu.palermo.hqlproject.R;
 import edu.palermo.hqlproject.server.AsyncRestRequest;
 import edu.palermo.hqlproject.server.listeners.AsyncRestListener;
 import edu.palermo.hqlproject.server.models.Analize;
-import edu.palermo.hqlproject.server.models.ResponseData;
 import edu.palermo.hqlproject.views.adapter.DiscussArrayAdapter;
 import edu.palermo.hqlproject.views.cells.OneComment;
+import edu.palermo.hqlproject.views.cells.ResponseComment;
 
 public class ConversationFragment extends Fragment implements
-		AsyncRestListener<Analize>, OnInitListener {
+		AsyncRestListener<Analize>, OnInitListener, OnItemClickListener {
 	private static final int REQUEST_CODE = 1234;
 	private static final int TTS_REQUEST_CODE = 1235;
 	private TextToSpeech mTts;
@@ -89,6 +92,7 @@ public class ConversationFragment extends Fragment implements
 		lv.setStackFromBottom(true);
 		lv.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 		lv.setAdapter(adapter);
+		lv.setOnItemClickListener(this);
 		setHasOptionsMenu(true);
 		
 	    Intent checkIntent = new Intent();
@@ -202,14 +206,12 @@ public class ConversationFragment extends Fragment implements
 	}
 
 	public void restCallDidFinishSucessfuly(Analize result) {
-		ResponseData data = result.getResponseData();
-		adapter.add(new OneComment(true, data.getSimpleText()));
-		if(result.getResponseType().equals("text") && ttsReadyToUse) {
-			mTts.speak(data.getSimpleText(),
+		adapter.add(new ResponseComment(true, result));
+		if(result.getResponseType() == Analize.ResponseType.text && ttsReadyToUse) {
+			mTts.speak(result.getResponseData().getSimpleText(),
 	                TextToSpeech.QUEUE_FLUSH,  // Drop all pending entries in the playback queue.
 	                null);
 		}
-		
 		texto.setText("");
 	}
 
@@ -232,6 +234,28 @@ public class ConversationFragment extends Fragment implements
 			Log.e("ConversationFragment", "Could not initialize TextToSpeech");
 		}
 		
+	}
+
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+		OneComment item = (OneComment)parent.getItemAtPosition(position);
+		if (item instanceof ResponseComment){
+			ResponseComment rComment = (ResponseComment)item;
+			switch (rComment.getData().getResponseType()) {
+			case text:{
+				break;
+			}
+			case link:{
+				Intent in = new Intent(getActivity(), WebActivity.class);
+				SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+				String base_api_url = sharedPref.getString(getString(R.string.preference_url_key), getString(R.string.preference_url_default));
+				in.setData(Uri.parse(base_api_url + rComment.getData().getResponseData().getUrl()));
+				startActivity(in);
+				break;
+			}
+			default:
+				break;
+			}
+		}
 	}
 
 }

@@ -26,6 +26,9 @@
         <activity
             android:name=".views.activities.PreferencesActivity"
             android:label="@string/app_name" />
-    </application>
+        <activity
+            android:name=".views.activities.WebActivity"
+            android:label="@string/app_name" />
+        </application>
 
 </manifest>
