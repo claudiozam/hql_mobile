@@ -13,6 +13,7 @@ public class WebActivity extends Activity {
 		setContentView(R.layout.web_view);
 		String url = getIntent().getDataString();
 		webView = (WebView) findViewById(R.id.webview);
+		webView.getSettings().setJavaScriptEnabled(true);
 		webView.loadUrl(url);
 
 	}
