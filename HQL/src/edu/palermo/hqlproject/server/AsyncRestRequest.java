@@ -34,6 +34,7 @@ public class AsyncRestRequest<T> extends AsyncTask<Map<String,String>, Integer, 
 
 		HttpHeaders requestHeaders = new HttpHeaders();
 		requestHeaders.setAccept(Collections.singletonList(new MediaType("application","json")));
+		
 		HttpEntity<?> requestEntity = new HttpEntity<Object>(requestHeaders);
 
 		// Create a new RestTemplate instance

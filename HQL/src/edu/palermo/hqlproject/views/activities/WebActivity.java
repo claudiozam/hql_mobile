@@ -2,6 +2,7 @@ package edu.palermo.hqlproject.views.activities;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import edu.palermo.hqlproject.R;
 
@@ -13,6 +14,8 @@ public class WebActivity extends Activity {
 		setContentView(R.layout.web_view);
 		String url = getIntent().getDataString();
 		webView = (WebView) findViewById(R.id.webview);
+		WebSettings webSettings = webView.getSettings();
+		webSettings.setJavaScriptEnabled(true);
 		webView.loadUrl(url);
 
 	}
